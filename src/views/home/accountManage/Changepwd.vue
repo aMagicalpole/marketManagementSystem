@@ -1,5 +1,5 @@
 <template>
-  <div class="changepw">
+  <div class="changepwd">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <h2>修改密码</h2>
@@ -14,7 +14,7 @@
           class="register-form"
         >
           <el-form-item label="用户名" prop="username">
-            <el-input v-model="user.username"></el-input>
+            <el-input v-model="user.username" disabled></el-input>
           </el-form-item>
           <el-form-item label="旧密码" prop="oldPwd">
             <el-input v-model="user.oldPwd" type="password"></el-input>
@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import { check, editpwd } from "@/api/apis";
 export default {
   data() {
     var validatePass = (rule, value, callback) => {
@@ -61,7 +62,8 @@ export default {
         username: "",
         oldPwd: "",
         newPwd: "",
-        checkNewPwd: ""
+        checkNewPwd: "",
+        id: ""
       },
       rules3: {
         newPwd: [
@@ -76,32 +78,58 @@ export default {
     submitForm() {
       this.$refs.changepwd.validate(valid => {
         if (valid) {
-          alert("修改成功!");
-          this.user = {
-            username: "",
-            oldPwd: "",
-            newPwd: "",
-            checkNewPwd: ""
-          };
+          editpwd(this.user).then(data => {
+            if (data.code === 1) {
+              alert(data.message);
+              this.user = {
+                username: "",
+                oldPwd: "",
+                newPwd: "",
+                checkNewPwd: ""
+              };
+            } else {
+              alert(data.message);
+            }
+          });
         } else {
           alert("修改失败!!");
           return false;
         }
       });
     }
+  },
+  mounted() {
+    const _this = this;
+    check({ token: localStorage.getItem("token") }).then(data => {
+      if (data) {
+        _this.user.username = data.username;
+        _this.user.id = data.id;
+      } else {
+        this.$message({
+          message: "未登录或者验证已过期，请重新登录",
+          type: "error",
+          duration: 1000,
+          onClose() {
+            _this.$router.push("/login");
+          }
+        });
+      }
+    });
   }
 };
 </script>
 
 <style lang="less" Scoped>
-.box-card {
-  width: 100%;
-  h2 {
-    margin: 0;
-  }
-  .el-form {
-    min-width: 400px;
-    width: 50%;
+.changepwd {
+  .box-card {
+    width: 100%;
+    h2 {
+      margin: 0;
+    }
+    .el-form {
+      min-width: 400px;
+      width: 50%;
+    }
   }
 }
 </style>

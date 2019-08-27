@@ -11,7 +11,7 @@
           unique-opened
           router
         >
-          <el-submenu v-for="menu in treelist" :key="menu.index" :index="menu.index">
+          <el-submenu v-for="menu in filterTree" :key="menu.index" :index="menu.index">
             <template slot="title">
               <i :class="menu.cls"></i>
               <span>{{menu.title}}</span>
@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import {getRole} from '@/api/apis'
 export default {
   data() {
     return {
@@ -41,6 +42,7 @@ export default {
           index: "1",
           cls: "el-icon-s-cooperation",
           title: "商品管理",
+          roles : [1],
           children: [
             { index: "/home/product", name: "商品管理" },
             { index: "/home/addproduct", name: "添加管理" }
@@ -50,6 +52,7 @@ export default {
           index: "2",
           cls: "el-icon-s-goods",
           title: "账号管理",
+          roles : [1],
           children: [
             { index: "/home/account", name: "账号管理" },
             { index: "/home/changepwd", name: "修改密码" },
@@ -60,6 +63,7 @@ export default {
           index: "3",
           cls: "el-icon-circle-plus",
           title: "进货管理",
+          roles : [1,2],
           children: [
             { index: "/home/inventoryManage", name: "库存管理" },
             { index: "/home/addInventory", name: "添加库存" }
@@ -69,8 +73,10 @@ export default {
           index: "4",
           cls: "el-icon-remove",
           title: "出货管理",
+          roles : [1,2],
           children: [
             { index: "/home/salelist", name: "销售列表" },
+            { index: "/home/sale", name: "商品销售" },
             { index: "/home/productout", name: "商品出库" },
             { index: "/home/goodsreturn", name: "商品退货" }
           ]
@@ -79,6 +85,7 @@ export default {
           index: "5",
           cls: "el-icon-s-data",
           title: "统计管理",
+          roles : [1],
           children: [
             { index: "/home/sta", name: "销售统计" },
             { index: "/home/stocksta", name: "进货统计" }
@@ -88,13 +95,35 @@ export default {
           index: "6",
           cls: "el-icon-s-custom",
           title: "会员管理",
+          roles : [1],
           children: [
             { index: "/home/xxxx", name: "账号管理" },
             { index: "/home/xxxxxx", name: "添加账号" }
           ]
         }
-      ]
+      ],
+      getrole : 2
     };
+  },
+  computed: {
+    //根据权限过滤菜单
+    filterTree(){
+      return this.treelist.filter((val)=>{
+        return val.roles.includes(this.getrole)
+      })
+    }
+  },
+  created(){
+     // 通过tokenid获取当前用户的权限
+    const _this = this;
+    getRole({'token':localStorage.getItem('token')})
+      .then((data)=>{
+        _this.getrole = data.role;
+        localStorage.setItem('role',data.role)
+      })
+  },
+  mounted(){
+   
   }
 };
 </script>

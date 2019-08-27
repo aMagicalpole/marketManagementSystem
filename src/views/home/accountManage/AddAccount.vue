@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import {addUser} from '@/api/apis.js'
+import { addUser } from "@/api/apis.js";
 export default {
   data() {
     var userFormat = (rule, value, callback) => {
@@ -80,11 +80,11 @@ export default {
     };
     return {
       adduser: {
-        username:'',
-        password: '',
-        checkPass: '',
-        Email: '',
-        role: ''
+        username: "",
+        password: "",
+        checkPass: "",
+        Email: "",
+        role: ""
       },
       rules2: {
         username: [{ validator: userFormat, trigger: "blur" }],
@@ -100,7 +100,7 @@ export default {
             message: "请输入正确的邮箱地址",
             trigger: "blur,change"
           }
-        ],
+        ]
         // roleSelect: [
         //   { required: true, message: "请选择权限", trigger: "change" }
         // ]
@@ -121,12 +121,12 @@ export default {
     submitForm() {
       this.$refs.adduser.validate(valid => {
         if (valid) {
-          addUser(this.adduser).then((data)=>{
-            if(data.success){
+          addUser(this.adduser).then(data => {
+            if (data.success) {
               alert(data.message);
-              this.$router.push('/home/account')
-            }else{
-              alert(data.message)
+              this.$router.push("/home/account");
+            } else {
+              alert(data.message);
             }
           });
           this.adduser = {
@@ -148,14 +148,16 @@ export default {
 </script>
 
 <style lang="less" Scoped>
-.box-card {
-  width: 100%;
-  h2 {
-    margin: 0;
-  }
-  .el-form {
-    min-width: 400px;
-    width: 50%;
+.addaccount {
+  .box-card {
+    width: 100%;
+    h2 {
+      margin: 0;
+    }
+    .el-form {
+      min-width: 400px;
+      width: 50%;
+    }
   }
 }
 </style>

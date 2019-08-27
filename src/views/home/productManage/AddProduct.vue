@@ -16,12 +16,13 @@
             <el-col :span="12">
               <el-form-item label="所属分类" prop="type">
                 <el-select v-model="addProductForm.type" placeholder="选择分类">
-                  <el-option label="1" value="shanghai"></el-option>
-                  <el-option label="2" value="beijing"></el-option>
+                  <el-option v-for="item in typeSum" :key="item" :label="item" :value="item">
+                    <span style="float: left">{{ item }}</span>
+                  </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="商品名称" prop="productName">
-                <el-input v-model="addProductForm.productName"></el-input>
+              <el-form-item label="商品名称" prop="productname">
+                <el-input v-model="addProductForm.productname"></el-input>
               </el-form-item>
               <el-form-item label="商品售价" prop="price">
                 <el-input v-model.number="addProductForm.price" type="number">
@@ -29,7 +30,11 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="市场价" prop="marketPrice">
-                <el-input v-model.number="addProductForm.marketPrice" placeholder="默认市场价为售价的1.2倍" type="number">
+                <el-input
+                  v-model.number="addProductForm.marketPrice"
+                  placeholder="默认市场价为售价的1.2倍"
+                  type="number"
+                >
                   <template slot="append">元</template>
                 </el-input>
               </el-form-item>
@@ -40,8 +45,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="入库数量" prop="putInNum">
-                <el-input v-model.number="addProductForm.putInNum" type="number"></el-input>
+              <el-form-item label="条形码" prop="barcode">
+                <el-input v-model.number="addProductForm.barcode" type="number"></el-input>
               </el-form-item>
               <el-form-item label="商品质量" prop="productWeight">
                 <el-input v-model.number="addProductForm.productWeight" type="number">
@@ -49,18 +54,18 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="商品单位" prop="unit">
-                <el-input v-model="addProductForm.unit" ></el-input>
+                <el-input v-model="addProductForm.unit"></el-input>
               </el-form-item>
               <el-form-item label="会员优惠" prop="demberDiscount">
                 <el-radio-group v-model="addProductForm.demberDiscount">
-                  <el-radio label="享受"></el-radio>
-                  <el-radio label="不享受"></el-radio>
+                  <el-radio label="1">享受</el-radio>
+                  <el-radio label="0">不享受</el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="是否促销" prop="Promotion">
                 <el-radio-group v-model="addProductForm.Promotion">
-                  <el-radio label="启用"></el-radio>
-                  <el-radio label="禁用"></el-radio>
+                  <el-radio label="1">启用</el-radio>
+                  <el-radio label="0">禁用</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
@@ -83,24 +88,36 @@
 </template>
 
 <script>
+import { addProduct } from "@/api/apis.js";
 export default {
   data() {
     return {
       addProductForm: {
         type: "",
-        productName: "",
+        productname: "",
         price: "",
         marketPrice: "",
         putInPrice: "",
-        putInNum: "",
+        barcode: "",
         productWeight: "",
         unit: "",
-        demberDiscount: "享受",
-        Promotion: "启用",
+        demberDiscount: "0",
+        Promotion: "0",
         productionIntriduction: ""
       },
+      typeSum: [
+        "饮品",
+        "食品类",
+        "香烟",
+        "酒类",
+        "干货类",
+        "果蔬 / 生鲜",
+        "调味品",
+        "百货类",
+        "日用品"
+      ],
       rules3: {
-        productName: [
+        productname: [
           { required: true, message: "请输入产品名称", trigger: "blur" }
         ],
         type: [
@@ -108,23 +125,23 @@ export default {
         ],
         price: [
           { required: true, message: "请输入商品售价", trigger: "change" },
-          { type: 'number', message: '必须为数字值'}
+          { type: "number", message: "必须为数字值" }
         ],
         marketPrice: [
           { required: true, message: "请输入市场价", trigger: "change" },
-          { type: 'number', message: '必须为数字值'}
+          { type: "number", message: "必须为数字值" }
         ],
         putInPrice: [
           { required: true, message: "请输入商品进价", trigger: "blur" },
-          { type: 'number', message: '必须为数字值'}
+          { type: "number", message: "必须为数字值" }
         ],
-        putInNum: [
-          { required: true, message: "请输入入库数量", trigger: "change" },
-          { type: 'number', message: '必须为数字值'}
+        barcode: [
+          { required: true, message: "请输入条形码", trigger: "change" },
+          { type: "number", message: "必须为数字值" }
         ],
         productWeight: [
           { required: true, message: "请输入商品质量", trigger: "change" },
-          { type: 'number', message: '必须为数字值'}
+          { type: "number", message: "必须为数字值" }
         ],
         unit: [{ required: true, message: "请输入商品单位", trigger: "change" }]
       }
@@ -132,9 +149,20 @@ export default {
   },
   methods: {
     submitForm() {
+      // 缓存this
+      const _this = this;
       this.$refs.addProductForm.validate(valid => {
         if (valid) {
-          alert("添加成功!");
+          // 发起添加产品请求
+          addProduct(this.addProductForm).then(data => {
+            if (data.code === 1) {
+              alert(data.message);
+              // 清空数据
+              _this.resetForm();
+            } else {
+              alert(data.message);
+            }
+          });
         } else {
           alert("添加失败!");
           return false;

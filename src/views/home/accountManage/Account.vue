@@ -14,7 +14,33 @@
           <el-table-column prop="inputTime" label="录入时间" :formatter="timeFormat"></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+              <el-button size="mini" @click="open(scope.row.id)">编辑</el-button>
+              <el-dialog title="个人信息编辑" :visible.sync="dialogFormVisible">
+                <el-form :model="form">
+                  <el-form-item label="用户名" :label-width="formLabelWidth">
+                    <el-input v-model="form.username" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="邮箱" :label-width="formLabelWidth">
+                    <el-input v-model="form.Email" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="权限" :label-width="formLabelWidth">
+                    <el-select v-model="form.role" placeholder="请选择权限">
+                      <el-option label="超级管理员" :value="1"></el-option>
+                      <el-option label="普通员工" :value="2"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="dialogFormVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="submitEdit">确 定</el-button>
+                </div>
+              </el-dialog>
+              <el-button
+                size="mini"
+                type="danger"
+                @click="handleDelete(scope.$index, scope.row)"
+                style="margin-left:10px;"
+              >删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -24,8 +50,8 @@
 </template>
 
 <script>
-import {listUser} from '@/api/apis.js'
-import moment from 'moment'
+import { listUser, getAccount, editAccount } from "@/api/apis.js";
+import moment from "moment";
 export default {
   data() {
     return {
@@ -37,25 +63,73 @@ export default {
           role: 1,
           id: "A001"
         }
-      ]
+      ],
+      dialogTableVisible: false,
+      dialogFormVisible: false,
+      form: {
+        id: "",
+        username: "",
+        role: "",
+        Email: ""
+      },
+      formLabelWidth: "120px"
     };
   },
-  methods : {
-    roleFormat(row, column, cellValue){
-      if(cellValue === 1){
+  methods: {
+    roleFormat(row, column, cellValue) {
+      if (cellValue === 1) {
         return "超级管理员";
-      }else if(cellValue === 2){
+      } else if (cellValue === 2) {
         return "普通员工";
       }
     },
-    timeFormat(row, column, cellValue){
-      return moment(cellValue).format('Y-MM-DD');
+    timeFormat(row, column, cellValue) {
+      return moment(cellValue).format("Y-MM-DD");
+    },
+    open(id) {
+      this.dialogFormVisible = true;
+      const _this = this;
+      getAccount(id).then(data => {
+        if (data.code === 1) {
+          _this.form = data.data;
+        } else {
+          alert(data.message);
+          this.dialogFormVisible = false;
+        }
+      });
+    },
+    update() {
+      listUser().then(data => {
+        this.tableData = data;
+      });
+    },
+    submitEdit() {
+      const _this = this;
+      editAccount(this.form).then(data => {
+        if (data.code === 1) {
+          this.$message({
+            message: data.message,
+            type: "success",
+            duration: 500,
+            onClose() {
+              _this.dialogFormVisible = false;
+              setTimeout(() => {
+                _this.update();
+              }, 1000);
+            }
+          });
+        } else {
+          this.$message({
+            message: data.message,
+            type: "error",
+            duration: 1000
+          });
+        }
+      });
     }
   },
-  mounted(){
-    listUser().then((data)=>{
-      this.tableData = data
-    })
+  mounted() {
+    this.update();
   }
 };
 </script>

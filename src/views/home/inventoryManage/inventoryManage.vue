@@ -22,11 +22,10 @@
           </el-row>
         </el-form>
         <el-table :data="tableData" stripe style="width: 100%">
-          <el-table-column prop="code" label="商品条形码" width="180"></el-table-column>
-          <el-table-column prop="Productname" label="商品名称" width="180"></el-table-column>
+          <el-table-column prop="barcode" label="商品条形码" width="180"></el-table-column>
+          <el-table-column prop="productname" label="商品名称" width="180"></el-table-column>
           <el-table-column prop="putInPrice" label="进价（元）"></el-table-column>
-          <el-table-column prop="putInNum" label="入库"></el-table-column>
-          <el-table-column prop="inventoryNum" label="库存"></el-table-column>
+          <el-table-column prop="stockSurplus" label="库存"></el-table-column>
           <el-table-column prop="Sold" label="已售"></el-table-column>
           <el-table-column prop="manage" label="管理">
             <el-button type="primary" plain circle icon="el-icon-s-tools"></el-button>
@@ -39,6 +38,7 @@
 </template>
 
 <script>
+import { getstock } from '@/api/apis'
 export default {
   data() {
     return {
@@ -46,47 +46,21 @@ export default {
       value: "",
       tableData: [
         {
-          code: "1245367125742",
-          Productname: "飘柔",
+          barcode: "1245367125742",
+          productname: "飘柔",
           putInPrice: 22,
           putInNum: 20,
-          inventoryNum: 18,
-          Sold: 18
-        },
-        {
-          code: "1245367125742",
-          Productname: "飘柔",
-          putInPrice: 22,
-          putInNum: 20,
-          inventoryNum: 18,
-          Sold: 18
-        },
-        {
-          code: "1245367125742",
-          Productname: "飘柔",
-          putInPrice: 22,
-          putInNum: 20,
-          inventoryNum: 18,
-          Sold: 18
-        },
-        {
-          code: "1245367125742",
-          Productname: "飘柔",
-          putInPrice: 22,
-          putInNum: 20,
-          inventoryNum: 18,
-          Sold: 18
-        },
-        {
-          code: "1245367125742",
-          Productname: "飘柔",
-          putInPrice: 22,
-          putInNum: 20,
-          inventoryNum: 18,
+          stockSurplus: 18,
           Sold: 18
         }
       ]
     };
+  },
+  mounted(){
+    const _this = this;
+    getstock().then((data)=>{
+      _this.tableData = data.data
+    })
   }
 };
 </script>

@@ -4,12 +4,15 @@
       <!-- 头部 -->
       <el-header>
         <h2>
-          <i class="el-icon-menu"></i> 小甜甜超市管理系统
+          <i class="el-icon-menu"></i> 大可爱超市管理系统
         </h2>
-        <p>
+        <p v-if="loginUser">
           <img src="../assets/images/icon_head.png" alt="">
-          <span>admin</span>
-          <el-button type="text">注销</el-button>
+          <span>{{loginUser}}</span>
+          <el-button type="text" @click="logout">注销</el-button>
+        </p>
+        <p v-else>
+          <el-button type="text">未登录</el-button>
         </p>
       </el-header>
       <!-- 中部 -->
@@ -29,7 +32,7 @@
       </el-main>
       <!-- 页脚 -->
       <el-footer>
-        <p>&copy; Copyright 2019 小甜甜超市版权所有</p>
+        <p>&copy; Copyright 2019 大可爱超市版权所有</p>
       </el-footer>
     </el-container>
   </div>
@@ -38,9 +41,29 @@
 <script>
 // 引入菜单
 import menu from '@/views/home/menu.vue'
+import {check} from '@/api/apis'
 export default {
+  data(){
+    return {
+      loginUser:''
+    }
+  },
   components : {
     "is-menu" : menu
+  },
+  methods : {
+    logout(){
+      this.$router.replace('/login');
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
+    }
+  },
+  mounted(){
+    const _this = this;
+    check({'token':localStorage.getItem('token')})
+      .then((data)=>{
+        _this.loginUser = data.username;
+      })
   }
 };
 </script>
@@ -57,6 +80,9 @@ export default {
       background-color: #242f41;
       line-height: 50px;
       padding:0 40px 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       h2 {
         margin: 0;
         padding: 0;

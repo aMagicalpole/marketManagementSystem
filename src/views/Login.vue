@@ -3,7 +3,7 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <p>
-          <i class="el-icon-goods"></i>永辉超市管理系统
+          <i class="el-icon-goods"></i>大可爱超市管理系统
         </p>
       </div>
       <div class="text item" @keyup.enter="submitForm">
@@ -36,13 +36,13 @@ export default {
   data() {
     return {
       userForm: {
-        username: "1111",
-        password: "111111"
+        username: "",
+        password: ""
       },
       rules: {
         username: [
           { required: true, message: "请输入用户名", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
+          { min: 2, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
         ],
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
@@ -57,16 +57,16 @@ export default {
         const _this = this;
         if (valid) {
           loginVerify(this.userForm).then(data => {
-            console.log(data);
+            const types = data.code === 0 ? 'error' : 'success';
             this.$message({
               message: data.message,
-              type: "success"
+              type: types
             });
             if (data.code == 1) {
               _this.$router.replace("/home/product");
+              localStorage.setItem('token',data.token)
             }
           });
-          // _this.$router.replace('/home/product');
         } else {
           this.$message.error("登录失败！");
           return false;

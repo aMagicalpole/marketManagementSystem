@@ -6,23 +6,18 @@
       </div>
       <div class="text item">
         <el-form
-          :model="addProduct"
+          :model="addStock"
           status-icon
           :rules="rules4"
-          ref="addProduct"
+          ref="addStock"
           label-width="100px"
-          class="addProduct"
+          class="addStock"
         >
-          <el-form-item label="商品条形码" prop="code">
-            <el-input type="number" v-model.number="addProduct.code" autocomplete="off"></el-input>
+          <el-form-item label="商品条形码" prop="barcode">
+            <el-input type="number" v-model.number="addStock.barcode" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="数量" prop="productNum">
-            <el-input type="number" v-model.number="addProduct.productNum" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="进价" prop="putInPrice">
-            <el-input type="number" v-model.number="addProduct.putInPrice">
-              <template slot="append">元</template>
-            </el-input>
+          <el-form-item label="数量" prop="stockNum">
+            <el-input type="number" v-model.number="addStock.stockNum" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitForm">入库</el-button>
@@ -35,25 +30,21 @@
 </template>
 
 <script>
+import { addstock } from "@/api/apis";
 export default {
   data() {
     return {
-      addProduct: {
-        code: "",
-        productNum: "",
-        putInPrice: ""
+      addStock: {
+        barcode: "",
+        stockNum: ""
       },
       rules4: {
-        code: [
+        barcode: [
           { required: true, message: "请输入商品条形码", trigger: "change" },
           { type: "number", message: "必须为数字值" }
         ],
-        productNum: [
+        stockNum: [
           { required: true, message: "请输入数量", trigger: "change" },
-          { type: "number", message: "必须为数字值" }
-        ],
-        putInPrice: [
-          { required: true, message: "请输入进价", trigger: "change" },
           { type: "number", message: "必须为数字值" }
         ]
       }
@@ -61,9 +52,17 @@ export default {
   },
   methods: {
     submitForm() {
-      this.$refs.addProduct.validate(valid => {
+      const _this = this;
+      this.$refs.addStock.validate(valid => {
         if (valid) {
-          alert("添加成功!");
+          addstock(this.addStock).then(data => {
+            if (data.code === 1) {
+              alert(data.message);
+              _this.resetForm();
+            } else {
+              alert(data.message);
+            }
+          });
         } else {
           alert("添加失败!");
           return false;
@@ -71,7 +70,7 @@ export default {
       });
     },
     resetForm() {
-      this.$refs.addProduct.resetFields();
+      this.$refs.addStock.resetFields();
     }
   }
 };
